@@ -2,7 +2,7 @@
 
 # Starts, stops, and restarts solr
 
-SOLR_DIR="/usr/local/solr/example"
+SOLR_DIR="/usr/local/src/solr/example"
 JAVA_OPTIONS="-Xmx512m -DSTOP.PORT=8079 -DSTOP.KEY=stopkey -Dsolr.solr.home=multicore -jar start.jar"
 LOG_FILE="/var/log/solr.log"
 JAVA="/usr/bin/java"
