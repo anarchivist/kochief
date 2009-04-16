@@ -1,3 +1,4 @@
 *.pyc
 kochief/kochief.db
 kochief/solr/data
+kochief/settings_local.py
