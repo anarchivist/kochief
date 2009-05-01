@@ -28,6 +28,7 @@
 {% endblock %}
 {% block content %}
   <div id="sidebar">
+    {% if subject_terms %}
     <div id="suggested">
       <h3>{% trans "Relevant subjects:" %}</h3>
       <ul>
@@ -36,6 +37,7 @@
         {% endfor %}
       </ul>
     </div>
+    {% endif %}
   </div>
   <div id="results">
     <div class="record">

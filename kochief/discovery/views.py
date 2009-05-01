@@ -103,7 +103,7 @@ def record(request, record_id):
         ('q.alt', '*:*'),
     ]
     subject_terms = []
-    for subject in doc['subject']:
+    for subject in doc.get('subject', []):
         params = base_params[:]
         params.append(('fq', 'subject_facet:"%s"' % subject))
         solr_url, solr_response = get_solr_response(params)
