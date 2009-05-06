@@ -1,5 +1,4 @@
-# Copyright 2007 Casey Durfee
-# Copyright 2007 Gabriel Farrell
+# Copyright 2009 Gabriel Farrell
 #
 # This file is part of Kochief.
 # 
@@ -16,22 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with Kochief.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf import settings
 from django.conf.urls.defaults import *
-from django.contrib import admin
 
-admin.autodiscover()
-
-urlpatterns = patterns('',
-    url(r'', include('kochief.cataloging.urls')),
-    url(r'', include('kochief.discovery.urls')),
-    url(r'', include('kochief.datastore.urls')),
-    ('^admin/(.*)', admin.site.root),
+urlpatterns = patterns('kochief.datastore.views',
+    url(r'^resource/(.*)\.rdf$', 'resource_view', {'format': 'xml'}, 
+        name='datastore-resource-rdf'),
+    url(r'^resource/(.*)\.n3$', 'resource_view', {'format': 'n3'}, 
+        name='datastore-resource-n3'),
+    url(r'^resource/(.*)\.nt$', 'resource_view', {'format': 'nt'}, 
+        name='datastore-resource-nt'),
+    url(r'^resource/(.*)$', 'resource_view', name='datastore-resource'),
 )
-
-if settings.DEBUG:
-    urlpatterns += patterns('', 
-        url(r'^media/(?P<path>.*)$', 'django.views.static.serve', 
-            {'document_root': settings.MEDIA_ROOT}),
-    )
-

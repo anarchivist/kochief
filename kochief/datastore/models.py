@@ -22,6 +22,7 @@ from rdflib.Graph import ConjunctiveGraph as Graph
 
 from django.contrib import admin
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 from django.db import models
 from django.utils import simplejson
 
@@ -31,51 +32,50 @@ DB_MAP = {
     'sqlite3': 'SQLite',
 }
 
-default_graph_uri = settings.BASE_URL + 'triplestore'
+DEFAULT_GRAPH_URI = settings.BASE_URL + 'rdf'
 
-store = plugin.get(DB_MAP[settings.DATABASE_ENGINE], 
-        Store)(settings.DATABASE_NAME)
-rt = store.open('', create=False)
-graph = Graph(store, identifier = rdflib.URIRef(default_graph_uri))
+STORE = plugin.get(DB_MAP[settings.DATABASE_ENGINE], Store)(
+        settings.DATABASE_NAME)
+RT = STORE.open('', create=False)
+STORE_GRAPH = Graph(STORE, identifier = rdflib.URIRef(DEFAULT_GRAPH_URI))
 
-# TODO: replace with local namespace
-rdflibns = rdflib.Namespace('http://rdflib.net/test/')
+LOCALNS = rdflib.Namespace(settings.BASE_URL + 'resource/')
 
 # TODO: timestamps for triples
 
-class Record(object):
-    def __init__(self, subject=None, field_list=None):
+class Resource(object):
+    def __init__(self, subject=None, statements=None):
         ''' 
-        field_list is a list of tuples, each corresponding to a field
-        in the record.
+        statements is a list of tuples, each corresponding to a statement
+        abount the subject.
         '''
         self.subject = subject
-        if field_list:
-            self.fields = field_list
-        else:
-            self.fields = []
-        self.existing = self._get_existing_triples()
-        for row in self.existing:
-            self.fields.append((unicode(row[1]), unicode(row[2])))
-            for field in field_list:
-                self.fields.append(field)
+        self.statements = statements
 
-    def _get_existing_triples(self):
-        return graph.query(
-            'SELECT ?s ?p ?o WHERE {rdflibns:%s ?p ?o.}' % self.subject, 
-            initNs={'rdflibns': rdflib.Namespace('http://rdflib.net/test/')})
+    def get_existing_statements(self):
+        return STORE_GRAPH.query(
+            'SELECT ?p ?o WHERE {localns:%s ?p ?o.}' % self.subject, 
+            initNs={'localns': LOCALNS})
 
     def save(self):
         # find intersection of self.fields and self.existing
         # remove self.existing not in intersection
         # add self.fields not in intersection
-        for field in self.fields:
-            graph.add((rdflibns[self.subject], rdflibns[field[0]],
-                rdflib.Literal(field[1])))
-        graph.commit()
+        for statement in self.statements:
+            STORE_GRAPH.add((LOCALNS[self.subject], LOCALNS[statement[0]],
+                rdflib.Literal(statement[1])))
+        STORE_GRAPH.commit()
     
     def delete(self):
         pass
+
+def get_resource(id):
+    subject = LOCALNS[id]
+    statements = STORE_GRAPH.predicate_objects(subject)
+    resource_graph = Graph(identifier = rdflib.URIRef(DEFAULT_GRAPH_URI))
+    for statement in statements:
+        resource_graph.add((subject, statement[0], statement[1]))
+    return resource_graph
 
 
 #class Record(models.Model):
