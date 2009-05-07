@@ -127,7 +127,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 
-## Settings specific to this project (that is, non-Django) ##
+## Settings for the discovery app ##
 
 SOLR_URL = 'http://localhost:8983/solr/test/'
 
@@ -228,21 +228,6 @@ FACETS = [
         'field': 'year', 
         'sort_by_count': True, 
     },
-#    {
-#        'name': ugettext('Dewey Range'), 
-#        'field': 'callnumlayerone', 
-#        'sort_by_count': False, 
-#    },
-#    { 
-#        'name': ugettext('Dewey Range'), 
-#        'field': 'callnumlayertwo', 
-#        'sort_by_count': False, 
-#    }, 
-#    { 
-#        'name': ugettext('Availability'), 
-#        'field': 'availability', 
-#        'sort_by_count': False, 
-#    },
 ]
 
 ITEMS_PER_PAGE = 20
@@ -256,6 +241,16 @@ SORTS = (
 )
 
 SEARCH_CACHE_TIME = 6000    # in seconds
+
+
+## Settings for the datastore app ##
+
+# Namespace for local resources
+LOCALNS = BASE_URL + 'r/'
+
+# Default URI for resource graph
+DEFAULT_GRAPH_URI = LOCALNS
+
 
 # Import for local overrides
 try:

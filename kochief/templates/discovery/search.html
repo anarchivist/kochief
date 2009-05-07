@@ -186,9 +186,6 @@
                 </div>
               {% endif %}
         {% comment %}
-              {%if doc.pubyear %}
-                (<a href="{{ BASE_URL }}search/?query={{ doc.pubyear }}&field=pubyear">{{ doc.pubyear }}</a>)
-              {% endif %}
             <div class="callnum">
               {%if doc.LCClass %}
                 {%for LCNum in doc.LCClass %}
