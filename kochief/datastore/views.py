@@ -20,7 +20,7 @@ from django.template import loader, Context
 
 from kochief.datastore import models
 
-def resource_view(request, id, format='html'):
+def resource_view(request, id='', format='html'):
     resource = models.get_resource(id)
     if format == 'html':
         context = Context(request)
@@ -35,3 +35,4 @@ def resource_view(request, id, format='html'):
     elif format == 'nt':
         return HttpResponse(resource.serialize(format='nt'), 
                 mimetype='text/plain')
+

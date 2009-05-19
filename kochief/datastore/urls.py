@@ -18,11 +18,11 @@
 from django.conf.urls.defaults import *
 
 urlpatterns = patterns('kochief.datastore.views',
-    url(r'^resource/(.*)\.rdf$', 'resource_view', {'format': 'xml'}, 
+    url(r'^r/(.*)\.rdf$', 'resource_view', {'format': 'xml'}, 
         name='datastore-resource-rdf'),
-    url(r'^resource/(.*)\.n3$', 'resource_view', {'format': 'n3'}, 
+    url(r'^r/(.*)\.n3$', 'resource_view', {'format': 'n3'}, 
         name='datastore-resource-n3'),
-    url(r'^resource/(.*)\.nt$', 'resource_view', {'format': 'nt'}, 
+    url(r'^r/(.*)\.nt$', 'resource_view', {'format': 'nt'}, 
         name='datastore-resource-nt'),
-    url(r'^resource/(.*)$', 'resource_view', name='datastore-resource'),
+    url(r'^r/(.*)$', 'resource_view', name='datastore-resource'),
 )

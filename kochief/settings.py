@@ -248,9 +248,6 @@ SEARCH_CACHE_TIME = 6000    # in seconds
 # Namespace for local resources
 LOCALNS = BASE_URL + 'r/'
 
-# Default URI for resource graph
-DEFAULT_GRAPH_URI = LOCALNS
-
 
 # Import for local overrides
 try:
