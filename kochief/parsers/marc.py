@@ -25,6 +25,7 @@ import pymarc
 import rdflib
 import re
 import sys
+import time
 from django.conf import settings
 from rdflib.Graph import ConjunctiveGraph as Graph
 
@@ -228,38 +229,38 @@ def get_languages(language_codes):
 #                pass
 #    return name
         
-def record_generator(data_handle):
+def generate_records(data_handle):
     reader = pymarc.MARCReader(data_handle)
     for marc_record in reader:
         record = get_record(marc_record)
         if record:  # skip when get_record returns None
             yield record
 
-def generate_triples(data_handle, count):
-    for record in record_generator(data_handle):
+def generate_triples(record):
+    for field in record:
+        if record[field]:
+            if hasattr(record[field], '__iter__'):
+                for value in record[field]:
+                    triple = (LOCALNS[record['id']], LOCALNS[field], 
+                            rdflib.Literal(value))
+                    yield triple
+            else:
+                triple = (LOCALNS[record['id']], LOCALNS[field], 
+                        rdflib.Literal(record[field]))
+                yield triple
+
+def write_ntriples(data_handle, ntriple_handle):
+    graph = Graph()
+    count = 0
+    for record in generate_records(data_handle):
         count += 1
         if count % 1000:
             sys.stderr.write(".")
         else:
             sys.stderr.write(str(count))
-        for field in record:
-            if record[field]:
-                if hasattr(record[field], '__iter__'):
-                    for value in record[field]:
-                        triple = (LOCALNS[record['id']], LOCALNS[field], 
-                                rdflib.Literal(value))
-                        yield triple
-                else:
-                    triple = (LOCALNS[record['id']], LOCALNS[field], 
-                            rdflib.Literal(record[field]))
-                    yield triple
-
-def write_ntriples(data_handle, ntriple_handle):
-    graph = Graph()
-    count = 0
-    for triple in generate_triples(data_handle, count):
-        graph.add(triple)
-    graph.commit()
+        for triple in generate_triples(record):
+            graph.add(triple)
+        graph.commit()
     ntriple_handle.write(graph.serialize(format='nt'))
     return count
 
