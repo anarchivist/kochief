@@ -110,6 +110,7 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+    'kochief.datastore',
     'kochief.discovery',
     'kochief.cataloging',
 )

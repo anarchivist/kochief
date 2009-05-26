@@ -22,11 +22,9 @@ from optparse import make_option
 import urllib
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
-from django.utils import simplejson
 
-from kochief.cataloging import models
+NTRIPLE_FILE = 'tmp.nt'
 
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
@@ -50,26 +48,31 @@ class Command(BaseCommand):
         for file_or_url in file_or_urls:
             data_handle = urllib.urlopen(file_or_url)
             # committer is "machine" from fixture
-            committer = User.objects.get(id=2)
+            #committer = User.objects.get(id=2)
             if not module:
                 # guess parser based on file extension
                 if file_or_url.endswith('.mrc'):
                     from parsers import marc as module
-            if not module:
-                raise CommandError("Please specify a parser.")
-            count = 0
-            for record in module.record_generator(data_handle):
-                count += 1
-                db_record = models.Record()
-                db_record.save()
-                id = db_record.id
-                print "Saving record %s" % id
-                record['id'] = id
-                db_record.version_set.create(
-                    data=simplejson.dumps(record), 
-                    message='record %s created by ingest' % id,
-                    committer=committer,
-                )
+                else:
+                    raise CommandError("Please specify a parser.")
+            ntriple_handle = open(NTRIPLE_FILE, 'w')
+            count = module.write_ntriples(data_handle, ntriple_handle)
+            #count = 0
+            #for record in module.record_generator(data_handle):
+            #    count += 1
+            #    statements = []
+            #    for field in record:
+            #    resource = models.Resource(record.id, statements)
+
+            #    db_record.save()
+            #    id = db_record.id
+            #    print "Saving record %s" % id
+            #    record['id'] = id
+            #    db_record.version_set.create(
+            #        data=simplejson.dumps(record), 
+            #        message='record %s created by ingest' % id,
+            #        committer=committer,
+            #    )
             print
             print "%s records saved" % count
 

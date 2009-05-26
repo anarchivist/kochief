@@ -22,8 +22,11 @@
 
 import csv
 import pymarc
+import rdflib
 import re
 import sys
+from django.conf import settings
+from rdflib.Graph import ConjunctiveGraph as Graph
 
 try:
     set
@@ -33,6 +36,7 @@ except NameError:
 # local libs
 import marc_maps
 
+LOCALNS = rdflib.Namespace(settings.LOCALNS)
 NONINT_RE = re.compile(r'\D')
 ISBN_RE = re.compile(r'(\b\d{10}\b|\b\d{13}\b)')
 UPC_RE = re.compile(r'\b\d{12}\b')
@@ -224,6 +228,41 @@ def get_languages(language_codes):
 #                pass
 #    return name
         
+def record_generator(data_handle):
+    reader = pymarc.MARCReader(data_handle)
+    for marc_record in reader:
+        record = get_record(marc_record)
+        if record:  # skip when get_record returns None
+            yield record
+
+def generate_triples(data_handle, count):
+    for record in record_generator(data_handle):
+        count += 1
+        if count % 1000:
+            sys.stderr.write(".")
+        else:
+            sys.stderr.write(str(count))
+        for field in record:
+            if record[field]:
+                if hasattr(record[field], '__iter__'):
+                    for value in record[field]:
+                        triple = (LOCALNS[record['id']], LOCALNS[field], 
+                                rdflib.Literal(value))
+                        yield triple
+                else:
+                    triple = (LOCALNS[record['id']], LOCALNS[field], 
+                            rdflib.Literal(record[field]))
+                    yield triple
+
+def write_ntriples(data_handle, ntriple_handle):
+    graph = Graph()
+    count = 0
+    for triple in generate_triples(data_handle, count):
+        graph.add(triple)
+    graph.commit()
+    ntriple_handle.write(graph.serialize(format='nt'))
+    return count
+
 def get_record(marc_record, ils=None):
     """
     Pulls the fields from a MARCReader record into a dictionary.

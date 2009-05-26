@@ -44,7 +44,7 @@ class Resource(object):
     def __init__(self, id=None, statements=None):
         ''' 
         statements is a list of tuples, each corresponding to a statement
-        abount the subject.
+        about the subject.
         '''
         self.id = id
         self.subject = LOCALNS[id]
