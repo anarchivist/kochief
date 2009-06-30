@@ -26,7 +26,10 @@ import rdflib
 import re
 import sys
 import time
+
 from django.conf import settings
+from django.contrib.sites.models import Site
+
 from rdflib.Graph import ConjunctiveGraph as Graph
 
 try:
@@ -37,7 +40,14 @@ except NameError:
 # local libs
 import marc_maps
 
-LOCALNS = rdflib.Namespace(settings.LOCALNS)
+# Assume that absolute URLs start with 'http'.
+if settings.LOCALNS.startswith('http'):
+    LOCALNS = rdflib.Namespace(settings.LOCALNS)
+else:
+    current_site = Site.objects.get_current()
+    LOCALNS = rdflib.Namespace('http://%s%s' % 
+            (current_site.domain, settings.LOCALNS))
+
 NONINT_RE = re.compile(r'\D')
 ISBN_RE = re.compile(r'(\b\d{10}\b|\b\d{13}\b)')
 UPC_RE = re.compile(r'\b\d{12}\b')

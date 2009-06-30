@@ -25,8 +25,7 @@ TEMPLATE_DEBUG = DEBUG
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__)) + '/'
 
-# Base URL of the project, either absolute or relative.  
-# Must include a trailing slash.
+# Relative base URL of the project.  Must include a trailing slash.
 BASE_URL = '/'
 
 ADMINS = (
@@ -246,7 +245,7 @@ SEARCH_CACHE_TIME = 6000    # in seconds
 
 ## Settings for the datastore app ##
 
-# Namespace for local resources
+# Namespace for local resources.  If relative, site domain will be prepended.
 LOCALNS = BASE_URL + 'r/'
 
 
