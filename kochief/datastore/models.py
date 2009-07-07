@@ -66,10 +66,13 @@ class Resource(object):
         pass
 
 def get_resource(id):
-    subject = LOCALNS[id]
-    statements = STORE_GRAPH.predicate_objects(subject)
-    resource_graph = Graph()
-    for statement in statements:
-        resource_graph.add((subject, statement[0], statement[1]))
+    if id:
+        subject = LOCALNS[id]
+        statements = STORE_GRAPH.predicate_objects(subject)
+        resource_graph = Graph()
+        for statement in statements:
+            resource_graph.add((subject, statement[0], statement[1]))
+    else:
+        resource_graph = STORE_GRAPH
     return resource_graph
 

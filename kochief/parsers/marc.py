@@ -193,6 +193,50 @@ def get_format(record):
         format = 'Musical Score'
     return format
 
+def parse_008(record, marc_record):
+    if marc_record['008']:
+        field008 = marc_record['008'].value()
+
+        # "a" added for noninteger search to work
+        dates = (field008[7:11] + 'a', field008[11:15] + 'a')
+        # test for which date is more precise based on searching for
+        # first occurence of nonintegers, i.e. 196u > 19uu
+        occur0 = NONINT_RE.search(dates[0]).start()
+        occur1 = NONINT_RE.search(dates[1]).start()
+        # if both are specific to the year, pick the earlier of the two
+        if occur0 == 4 and occur1 == 4:
+            date = min(dates[0], dates[1])
+        else:
+            if occur0 >= occur1:
+                date = dates[0]
+            else:
+                date = dates[1]
+        # don't use it if it starts with a noninteger
+        if NONINT_RE.match(date):
+            record['pubyear'] = ''
+        else:
+            # substitute all nonints with dashes, chop off "a"
+            date = NONINT_RE.sub('-', date[:4])
+            record['pubyear'] = date
+            # maybe try it as a solr.DateField at some point
+            #record['pubyear'] = '%s-01-01T00:00:01Z' % date
+    
+        audience_code = field008[22]
+        if audience_code != ' ':
+            try:
+                record['audience'] = marc_maps.AUDIENCE_CODING_MAP[audience_code]
+            except KeyError, error:
+                #sys.stderr.write("\nIllegal audience code: %s\n" % error)
+                record['audience'] = ''
+
+        language_code = field008[35:38]
+        if language_code != '   ':
+            try:
+                record['language'] = marc_maps.LANGUAGE_CODING_MAP[language_code]
+            except KeyError:
+                record['language'] = ''
+    return record
+
 def id_match(id_fields, id_re):
     id_list = []
     for field in id_fields:
@@ -246,18 +290,46 @@ def generate_records(data_handle):
         if record:  # skip when get_record returns None
             yield record
 
-def generate_triples(record):
+RDF = rdflib.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
+RDFS = rdflib.Namespace('http://www.w3.org/TR/rdf-schema/')
+DC = rdflib.Namespace('http://purl.org/dc/elements/1.1/')
+DCTERMS = rdflib.Namespace('http://purl.org/dc/terms/')
+BIBO = rdflib.Namespace('http://purl.org/ontology/bibo/')
+CHIEF = rdflib.Namespace('http://kochief.org/vocab/')
+FRBR = rdflib.Namespace('http://purl.org/vocab/frbr/core#')
+
+TRIPLES_MAP = {
+    'author': DC['creator'],
+    'oclc_num': BIBO['oclcnum'],
+    'publisher': DCTERMS['publisher'],
+    'topic': DC['subject'],
+    'title': DC['title'],
+}
+
+def get_triples(record):
+    triples = []
+    id = LOCALNS[record['id']]
+    format = record['format']
+    if format == 'Book':
+        triples.append((id, 
+            rdflib.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), 
+            rdflib.Namespace('http://purl.org/ontology/bibo/Book')))
     for field in record:
-        if record[field]:
-            if hasattr(record[field], '__iter__'):
-                for value in record[field]:
-                    triple = (LOCALNS[record['id']], LOCALNS[field], 
-                            rdflib.Literal(value))
-                    yield triple
+        value = record[field]
+        if value:
+            mapping = TRIPLES_MAP.get(field)
+            if mapping:
+                namespace = mapping
             else:
-                triple = (LOCALNS[record['id']], LOCALNS[field], 
-                        rdflib.Literal(record[field]))
-                yield triple
+                namespace = LOCALNS[field]
+            if hasattr(value, '__iter__'):
+                for iter_value in value:
+                    triple = (id, namespace, rdflib.Literal(iter_value))
+                    triples.append(triple)
+            else:
+                triple = (id, namespace, rdflib.Literal(value))
+                triples.append(triple)
+    return triples
 
 def write_ntriples(data_handle, ntriple_handle):
     graph = Graph()
@@ -268,7 +340,7 @@ def write_ntriples(data_handle, ntriple_handle):
             sys.stderr.write(".")
         else:
             sys.stderr.write(str(count))
-        for triple in generate_triples(record):
+        for triple in get_triples(record):
             graph.add(triple)
         graph.commit()
     ntriple_handle.write(graph.serialize(format='nt'))
@@ -320,47 +392,7 @@ def get_record(marc_record, ils=None):
         oclc_number = ''
     record['oclc_num'] = oclc_number
 
-    if marc_record['008']:
-        field008 = marc_record['008'].value()
-
-        # "a" added for noninteger search to work
-        dates = (field008[7:11] + 'a', field008[11:15] + 'a')
-        # test for which date is more precise based on searching for
-        # first occurence of nonintegers, i.e. 196u > 19uu
-        occur0 = NONINT_RE.search(dates[0]).start()
-        occur1 = NONINT_RE.search(dates[1]).start()
-        # if both are specific to the year, pick the earlier of the two
-        if occur0 == 4 and occur1 == 4:
-            date = min(dates[0], dates[1])
-        else:
-            if occur0 >= occur1:
-                date = dates[0]
-            else:
-                date = dates[1]
-        # don't use it if it starts with a noninteger
-        if NONINT_RE.match(date):
-            record['pubyear'] = ''
-        else:
-            # substitute all nonints with dashes, chop off "a"
-            date = NONINT_RE.sub('-', date[:4])
-            record['pubyear'] = date
-            # maybe try it as a solr.DateField at some point
-            #record['pubyear'] = '%s-01-01T00:00:01Z' % date
-    
-        audience_code = field008[22]
-        if audience_code != ' ':
-            try:
-                record['audience'] = marc_maps.AUDIENCE_CODING_MAP[audience_code]
-            except KeyError, error:
-                #sys.stderr.write("\nIllegal audience code: %s\n" % error)
-                record['audience'] = ''
-
-        language_code = field008[35:38]
-        if language_code != '   ':
-            try:
-                record['language'] = marc_maps.LANGUAGE_CODING_MAP[language_code]
-            except KeyError:
-                record['language'] = ''
+    record = parse_008(record, marc_record)
 
     isbn_fields = marc_record.get_fields('020')
     record['isbn'] = id_match(isbn_fields, ISBN_RE)

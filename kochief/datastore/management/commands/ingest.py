@@ -38,25 +38,25 @@ class Command(BaseCommand):
 
     def handle(self, *file_or_urls, **options):
         if file_or_urls:
-            parser = options.get('parser')
-            module = None
-            if parser:
-                if parser.endswith('.py'):
-                    parser = parser[:-3]
-                module = __import__('parsers.' + parser, globals(), locals(), 
-                        [parser])
+            parser_module = options.get('parser')
+            parser = None
+            if parser_module:
+                if parser_module.endswith('.py'):
+                    parser_module = parser_module[:-3]
+                parser = __import__('parsers.' + parser_module, globals(), 
+                        locals(), [parser_module])
         for file_or_url in file_or_urls:
             data_handle = urllib.urlopen(file_or_url)
             # committer is "machine" from fixture
             #committer = User.objects.get(id=2)
-            if not module:
+            if not parser:
                 # guess parser based on file extension
                 if file_or_url.endswith('.mrc'):
-                    from parsers import marc as module
+                    from parsers import marc as parser
                 else:
                     raise CommandError("Please specify a parser.")
             ntriple_handle = open(NTRIPLE_FILE, 'w')
-            count = module.write_ntriples(data_handle, ntriple_handle)
+            count = parser.write_ntriples(data_handle, ntriple_handle)
             #count = 0
             #for record in module.record_generator(data_handle):
             #    count += 1

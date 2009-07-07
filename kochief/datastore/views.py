@@ -16,14 +16,15 @@
 # along with Kochief.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.http import HttpResponse, Http404
-from django.template import loader, Context
+from django.template import loader, RequestContext
 
 from kochief.datastore import models
 
 def resource_view(request, id='', format='html'):
     resource = models.get_resource(id)
     if format == 'html':
-        context = Context(request)
+        context = RequestContext(request)
+        context['graph'] = resource.serialize(format='n3')
         template = loader.get_template('datastore/resource.html')
         return HttpResponse(template.render(context))
     elif format == 'xml':
