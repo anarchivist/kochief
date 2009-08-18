@@ -310,9 +310,9 @@ def get_triples(record):
     triples = []
     id = LOCALNS[record['id']]
     format = record['format']
+    isa = rdflib.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#type') 
     if format == 'Book':
-        triples.append((id, 
-            rdflib.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'), 
+        triples.append((id, isa,
             rdflib.Namespace('http://purl.org/ontology/bibo/Book')))
     for field in record:
         value = record[field]
@@ -331,7 +331,7 @@ def get_triples(record):
                 triples.append(triple)
     return triples
 
-def write_ntriples(data_handle, ntriple_handle):
+def write_graph(data_handle, out_handle, format='n3'):
     graph = Graph()
     count = 0
     for record in generate_records(data_handle):
@@ -343,7 +343,7 @@ def write_ntriples(data_handle, ntriple_handle):
         for triple in get_triples(record):
             graph.add(triple)
         graph.commit()
-    ntriple_handle.write(graph.serialize(format='nt'))
+    out_handle.write(graph.serialize(format=format))
     return count
 
 def get_record(marc_record, ils=None):
@@ -458,10 +458,8 @@ def get_record(marc_record, ils=None):
     subjentity_fields = marc_record.get_fields('610')
     subjectentities = multi_field_list(subjentity_fields, 'ab')
     
-    subject_fields = marc_record.subjects()
-    #topics = multi_field_list(subject_fields, 'avxyz')
-    #record['topic'] = [x for x in topics if 
-    #        x != 'Video marc_recordings for the hearing impaired']
+    subject_fields = marc_record.subjects()  # gets all 65X fields
+
     genres = []
     topics = []
     places = []

@@ -25,6 +25,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 NTRIPLE_FILE = 'tmp.nt'
+RDF_FILE = 'tmp.rdf'
 
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
@@ -55,8 +56,8 @@ class Command(BaseCommand):
                     from parsers import marc as parser
                 else:
                     raise CommandError("Please specify a parser.")
-            ntriple_handle = open(NTRIPLE_FILE, 'w')
-            count = parser.write_ntriples(data_handle, ntriple_handle)
+            out_handle = open(RDF_FILE, 'w')
+            count = parser.write_graph(data_handle, out_handle, format='xml')
             #count = 0
             #for record in module.record_generator(data_handle):
             #    count += 1
