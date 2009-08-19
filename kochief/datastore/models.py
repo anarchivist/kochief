@@ -43,7 +43,7 @@ LOCALNS = rdflib.Namespace(settings.LOCALNS)
 class Resource(object):
     def __init__(self, id=None, statements=None):
         ''' 
-        statements is a list of tuples, each corresponding to a statement
+        statements is a set of triples, each corresponding to a statement
         about the subject.
         '''
         self.id = id
@@ -58,8 +58,7 @@ class Resource(object):
         # remove self.existing not in intersection
         # add self.fields not in intersection
         for statement in self.statements:
-            STORE_GRAPH.add((self.subject, LOCALNS[statement[0]],
-                rdflib.Literal(statement[1])))
+            STORE_GRAPH.add(statement)
         STORE_GRAPH.commit()
     
     def delete(self):

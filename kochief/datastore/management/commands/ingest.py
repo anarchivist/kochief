@@ -58,14 +58,14 @@ class Command(BaseCommand):
                     from parsers import marc as parser
                 else:
                     raise CommandError("Please specify a parser.")
-            out_handle = open(RDF_FILE, 'w')
-            count = parser.write_graph(data_handle, out_handle, format='xml')
-            #count = 0
-            #for record in module.record_generator(data_handle):
-            #    count += 1
-            #    statements = []
-            #    for field in record:
-            #    resource = models.Resource(record.id, statements)
+            #out_handle = open(RDF_FILE, 'w')
+            #count = parser.write_graph(data_handle, out_handle, format='xml')
+            count = 0
+            for record in parser.generate_records(data_handle):
+                count += 1
+                statements = parser.get_triples(record)
+                resource = models.Resource(record['id'], statements)
+                resource.save()
 
             #    db_record.save()
             #    id = db_record.id
