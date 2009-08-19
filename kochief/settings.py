@@ -245,7 +245,8 @@ SEARCH_CACHE_TIME = 6000    # in seconds
 
 ## Settings for the datastore app ##
 
-# Namespace for local resources.  If relative, site domain will be prepended.
+# Namespace for local resources.  If relative, site domain will be prepended
+# when triples are serialized.
 LOCALNS = BASE_URL + 'r/'
 
 

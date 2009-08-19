@@ -24,6 +24,8 @@ import urllib
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
+from kochief.datastore import models
+
 NTRIPLE_FILE = 'tmp.nt'
 RDF_FILE = 'tmp.rdf'
 

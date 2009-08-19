@@ -40,13 +40,7 @@ except NameError:
 # local libs
 import marc_maps
 
-# Assume that absolute URLs start with 'http'.
-if settings.LOCALNS.startswith('http'):
-    LOCALNS = rdflib.Namespace(settings.LOCALNS)
-else:
-    current_site = Site.objects.get_current()
-    LOCALNS = rdflib.Namespace('http://%s%s' % 
-            (current_site.domain, settings.LOCALNS))
+LOCALNS = rdflib.Namespace(settings.LOCALNS)
 
 NONINT_RE = re.compile(r'\D')
 ISBN_RE = re.compile(r'(\b\d{10}\b|\b\d{13}\b)')
@@ -310,10 +304,8 @@ def get_triples(record):
     triples = []
     id = LOCALNS[record['id']]
     format = record['format']
-    isa = rdflib.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#type') 
-    if format == 'Book':
-        triples.append((id, isa,
-            rdflib.Namespace('http://purl.org/ontology/bibo/Book')))
+    if format in ('Book', 'Journal'):
+        triples.append((id, RDF['type'], BIBO[format]))
     for field in record:
         value = record[field]
         if value:
@@ -343,7 +335,9 @@ def write_graph(data_handle, out_handle, format='n3'):
         for triple in get_triples(record):
             graph.add(triple)
         graph.commit()
-    out_handle.write(graph.serialize(format=format))
+    current_site = Site.objects.get_current()
+    domain = 'http://%s' % current_site.domain
+    out_handle.write(graph.serialize(format=format, base=domain, include_base=True))
     return count
 
 def get_record(marc_record, ils=None):
