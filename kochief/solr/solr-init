@@ -11,7 +11,7 @@ case $1 in
     start)
         echo "Starting Solr...."
         cd $SOLR_DIR
-        $JAVA $JAVA_OPTIONS 2> $LOG_FILE &
+        $JAVA $JAVA_OPTIONS > $LOG_FILE 2>&1 &
         sleep 1
         ;;
     stop)
