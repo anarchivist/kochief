@@ -28,6 +28,9 @@ from django.db import models
 from django.utils import simplejson
 
 DB_MAP = {
+    'mysql': 'MySQL',
+    'postgresql': 'PostgreSQL',
+    'postgresql_psycopg2': 'PostgreSQL',
     'sqlite3': 'SQLite',
 }
 STORE = plugin.get(DB_MAP[settings.DATABASE_ENGINE], Store)(
