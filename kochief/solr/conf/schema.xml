@@ -35,13 +35,7 @@
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0"/>
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.EnglishPorterFilterFactory"/>
-        <!-- Unicode normalization and diacritics filtering done by 
-          solr/lib/SolrPlugins.jar, which we're moving away from to the
-          solr.ISOLatin1AccentFilterFactory. 
-          See http://wiki.apache.org/solr/AnalyzersTokenizersTokenFilters
-        <filter class="schema.UnicodeNormalizationFilterFactory"/>       
-        <filter class="schema.DiacriticsFilterFactory"/>       
-        -->
+        <!-- TODO: Investigate solr.ISOLatin1AccentFilterFactory. -->
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
       <analyzer type="query">
@@ -50,10 +44,6 @@
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="0" catenateNumbers="0" catenateAll="0"/>
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.EnglishPorterFilterFactory"/>
-        <!--
-        <filter class="schema.UnicodeNormalizationFilterFactory"/>       
-        <filter class="schema.DiacriticsFilterFactory"/>       
-        -->
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
     </fieldtype>
@@ -73,10 +63,6 @@
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
         <filter class="solr.WordDelimiterFilterFactory" generateWordParts="1" generateNumberParts="1" catenateWords="1" catenateNumbers="1" catenateAll="0"/>
         <filter class="solr.LowerCaseFilterFactory"/>
-        <!--
-        <filter class="schema.UnicodeNormalizationFilterFactory"/>       
-        <filter class="schema.DiacriticsFilterFactory"/>       
-        -->
         <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
       </analyzer>
     </fieldtype>
@@ -87,10 +73,6 @@
       <analyzer>
         <tokenizer class="solr.KeywordTokenizerFactory"/>
         <filter class="solr.LowerCaseFilterFactory"/>
-        <!--
-        <filter class="schema.UnicodeNormalizationFilterFactory"/>       
-        <filter class="schema.DiacriticsFilterFactory"/>       
-        -->
       </analyzer>
     </fieldtype>
   </types>

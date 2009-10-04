@@ -4,20 +4,11 @@
   <indexDefaults>
     <useCompoundFile>false</useCompoundFile>
     <mergeFactor>10</mergeFactor>
-    <maxBufferedDocs>1000</maxBufferedDocs>
-    <maxMergeDocs>2147483647</maxMergeDocs>
+    <ramBufferSizeMB>32</ramBufferSizeMB>
     <maxFieldLength>10000</maxFieldLength>
     <writeLockTimeout>1000</writeLockTimeout>
     <commitLockTimeout>10000</commitLockTimeout>
   </indexDefaults>
-  <mainIndex>
-    <useCompoundFile>false</useCompoundFile>
-    <mergeFactor>10</mergeFactor>
-    <maxBufferedDocs>1000</maxBufferedDocs>
-    <maxMergeDocs>2147483647</maxMergeDocs>
-    <maxFieldLength>10000</maxFieldLength>
-    <unlockOnStartup>false</unlockOnStartup>
-  </mainIndex>
   <updateHandler class="solr.DirectUpdateHandler2">
   </updateHandler>
   <query>
@@ -69,7 +60,5 @@
   </requestDispatcher>
   <admin>
     <defaultQuery>solr</defaultQuery>
-    <gettableFiles>solrconfig.xml schema.xml admin-extra.html</gettableFiles>
-    <pingQuery>q=id:0&amp;start=0&amp;rows=0</pingQuery>
   </admin>
 </config>
