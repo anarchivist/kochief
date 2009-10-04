@@ -19,9 +19,6 @@ body {
 img {
   border: none;
 }
-input[type=text] {
-  width: 40em;
-}
 ol {
   list-style: none;
 }
