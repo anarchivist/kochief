@@ -18,7 +18,7 @@
 import rdflib
 from rdflib import plugin
 from rdflib.store import Store
-from rdflib.Graph import ConjunctiveGraph as Graph
+from rdflib.graph import ConjunctiveGraph as Graph
 
 from django.conf import settings
 from django.contrib import admin
@@ -38,8 +38,8 @@ STORE = plugin.get(DB_MAP[settings.DATABASE_ENGINE], Store)(
 RT = STORE.open('', create=False)
 DEFAULT_GRAPH_URI = settings.LOCALNS
 STORE_GRAPH = Graph(STORE, 
-        identifier = rdflib.URIRef(DEFAULT_GRAPH_URI))
-LOCALNS = rdflib.Namespace(settings.LOCALNS)
+        identifier = rdflib.term.URIRef(DEFAULT_GRAPH_URI))
+LOCALNS = rdflib.namespace.Namespace(settings.LOCALNS)
 
 # TODO: timestamps for triples
 

@@ -30,7 +30,7 @@ import time
 from django.conf import settings
 from django.contrib.sites.models import Site
 
-from rdflib.Graph import ConjunctiveGraph as Graph
+from rdflib.graph import ConjunctiveGraph as Graph
 
 try:
     set
@@ -40,7 +40,7 @@ except NameError:
 # local libs
 import marc_maps
 
-LOCALNS = rdflib.Namespace(settings.LOCALNS)
+LOCALNS = rdflib.namespace.Namespace(settings.LOCALNS)
 
 NONINT_RE = re.compile(r'\D')
 ISBN_RE = re.compile(r'(\b\d{10}\b|\b\d{13}\b)')
@@ -284,13 +284,13 @@ def generate_records(data_handle):
         if record:  # skip when get_record returns None
             yield record
 
-RDF = rdflib.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
-RDFS = rdflib.Namespace('http://www.w3.org/TR/rdf-schema/')
-DC = rdflib.Namespace('http://purl.org/dc/elements/1.1/')
-DCTERMS = rdflib.Namespace('http://purl.org/dc/terms/')
-BIBO = rdflib.Namespace('http://purl.org/ontology/bibo/')
-CHIEF = rdflib.Namespace('http://kochief.org/vocab/')
-FRBR = rdflib.Namespace('http://purl.org/vocab/frbr/core#')
+RDF = rdflib.namespace.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
+RDFS = rdflib.namespace.Namespace('http://www.w3.org/TR/rdf-schema/')
+DC = rdflib.namespace.Namespace('http://purl.org/dc/elements/1.1/')
+DCTERMS = rdflib.namespace.Namespace('http://purl.org/dc/terms/')
+BIBO = rdflib.namespace.Namespace('http://purl.org/ontology/bibo/')
+CHIEF = rdflib.namespace.Namespace('http://kochief.org/vocab/')
+FRBR = rdflib.namespace.Namespace('http://purl.org/vocab/frbr/core#')
 
 TRIPLES_MAP = {
     'author': DC['creator'],
@@ -316,10 +316,10 @@ def get_triples(record):
                 namespace = LOCALNS[field]
             if hasattr(value, '__iter__'):
                 for iter_value in value:
-                    triple = (id, namespace, rdflib.Literal(iter_value))
+                    triple = (id, namespace, rdflib.term.Literal(iter_value))
                     triples.append(triple)
             else:
-                triple = (id, namespace, rdflib.Literal(value))
+                triple = (id, namespace, rdflib.term.Literal(value))
                 triples.append(triple)
     return triples
 
