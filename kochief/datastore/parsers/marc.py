@@ -292,13 +292,36 @@ BIBO = rdflib.namespace.Namespace('http://purl.org/ontology/bibo/')
 CHIEF = rdflib.namespace.Namespace('http://kochief.org/vocab/')
 FRBR = rdflib.namespace.Namespace('http://purl.org/vocab/frbr/core#')
 
-TRIPLES_MAP = {
+URI_MAP = {
     'author': DC['creator'],
     'oclc_num': BIBO['oclcnum'],
     'publisher': DCTERMS['publisher'],
     'topic': DC['subject'],
     'title': DC['title'],
 }
+
+def get_statements(record):
+    statements = []
+    id = LOCALNS[record['id']]
+    format = record['format']
+    if format in ('Book', 'Journal'):
+        statements.append((id, RDF['type'], BIBO[format]))
+    for field in record:
+        value = record[field]
+        if value:
+            mapping = URI_MAP.get(field)
+            if mapping:
+                pred_uri = mapping
+            else:
+                pred_uri = LOCALNS[field]
+            if hasattr(value, '__iter__'):
+                for iter_value in value:
+                    statement = (pred_uri, rdflib.term.Literal(iter_value))
+                    statements.append(statement)
+            else:
+                statement = (pred_uri, rdflib.term.Literal(value))
+                statements.append(statement)
+    return statements
 
 def get_triples(record):
     triples = []
@@ -309,7 +332,7 @@ def get_triples(record):
     for field in record:
         value = record[field]
         if value:
-            mapping = TRIPLES_MAP.get(field)
+            mapping = URI_MAP.get(field)
             if mapping:
                 namespace = mapping
             else:

@@ -47,7 +47,7 @@ class Command(BaseCommand):
         make_option('-p', '--parser',
             dest='parser',
             metavar='PARSER', 
-            help='Use PARSER (in kochief/parsers/) to parse files or urls for indexing'),
+            help='Use PARSER (in discovery/parsers) to parse files or urls for indexing'),
     )
     help = 'Indexes documents in a Solr instance.'
     args = '[file_or_url ...]'
@@ -63,13 +63,13 @@ class Command(BaseCommand):
             if parser:
                 if parser.endswith('.py'):
                     parser = parser[:-3]
-                module = __import__('kochief.parsers.' + parser, globals(), 
+                module = __import__('kochief.discovery.parsers.' + parser, globals(), 
                         locals(), [parser])
         for file_or_url in file_or_urls:
             if not module:
                 # guess parser based on file extension
                 if file_or_url.endswith('.mrc'):
-                    from kochief.parsers import marc as module
+                    import kochief.discovery.parsers.marc as module
             if not module:
                 raise CommandError("Please specify a parser.")
             print "Converting %s to CSV ..." % file_or_url

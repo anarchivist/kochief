@@ -109,9 +109,9 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+    #'kochief.cataloging',
     'kochief.datastore',
     'kochief.discovery',
-    'kochief.cataloging',
 )
 
 CACHE_BACKEND = 'locmem:///'

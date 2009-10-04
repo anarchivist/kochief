@@ -15,25 +15,28 @@
 # You should have received a copy of the GNU General Public License
 # along with Kochief.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.http import HttpResponse, Http404
-from django.template import loader, RequestContext
+import django.http as http
+import django.template.context as tc
+import django.template.loader as tl
 
-from kochief.datastore import models
+import kochief.datastore.models as dm
 
-def resource_view(request, id='', format='html'):
-    resource = models.get_resource(id)
+def resource_view(request, resource_id, format='html'):
+    resource = dm.Resource.objects.get(id=resource_id)
     if format == 'html':
-        context = RequestContext(request)
+        context = tc.RequestContext(request)
         context['graph'] = resource.serialize(format='n3')
-        template = loader.get_template('datastore/resource.html')
-        return HttpResponse(template.render(context))
+        template = tl.get_template('datastore/resource.html')
+        return http.HttpResponse(template.render(context))
+    elif format == 'dc':
+        dc_elements = resource
     elif format == 'xml':
-        return HttpResponse(resource.serialize(), 
+        return http.HttpResponse(resource.serialize(format='xml'), 
                 mimetype='application/rdf+xml')
     elif format == 'n3':
-        return HttpResponse(resource.serialize(format='n3'), 
+        return http.HttpResponse(resource.serialize(format='n3'), 
                 mimetype='text/n3')
     elif format == 'nt':
-        return HttpResponse(resource.serialize(format='nt'), 
+        return http.HttpResponse(resource.serialize(format='nt'), 
                 mimetype='text/plain')
 

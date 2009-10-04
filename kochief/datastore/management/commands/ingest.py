@@ -34,7 +34,7 @@ class Command(BaseCommand):
         make_option('-p', '--parser',
             dest='parser',
             metavar='PARSER', 
-            help='Use PARSER (relative path) to parse FILEs for indexing'),
+            help='Use PARSER (in kochief/datastore/parsers) to parse FILEs for ingesting'),
     )
     help = 'Ingests documents into the catalog.'
     args = 'file_or_url [file_or_url ...]'
@@ -46,7 +46,7 @@ class Command(BaseCommand):
             if parser_module:
                 if parser_module.endswith('.py'):
                     parser_module = parser_module[:-3]
-                parser = __import__('parsers.' + parser_module, globals(), 
+                parser = __import__('kochief.datastore.parsers.' + parser_module, globals(), 
                         locals(), [parser_module])
         for file_or_url in file_or_urls:
             data_handle = urllib.urlopen(file_or_url)
@@ -55,7 +55,7 @@ class Command(BaseCommand):
             if not parser:
                 # guess parser based on file extension
                 if file_or_url.endswith('.mrc'):
-                    from parsers import marc as parser
+                    import kochief.datastore.parsers.marc as parser
                 else:
                     raise CommandError("Please specify a parser.")
             #out_handle = open(RDF_FILE, 'w')
@@ -63,7 +63,7 @@ class Command(BaseCommand):
             count = 0
             for record in parser.generate_records(data_handle):
                 count += 1
-                statements = parser.get_triples(record)
+                statements = parser.get_statements(record)
                 resource = models.Resource(record['id'], statements)
                 resource.save()
 

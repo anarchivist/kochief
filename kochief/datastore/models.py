@@ -15,17 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with Kochief.  If not, see <http://www.gnu.org/licenses/>.
 
-import rdflib
-from rdflib import plugin
-from rdflib.store import Store
-from rdflib.graph import ConjunctiveGraph as Graph
+import rdflib.graph as rg
+import rdflib.namespace as ns
+import rdflib.term as rt
 
-from django.conf import settings
-from django.contrib import admin
-from django.contrib.auth.models import User
-from django.contrib.sites.models import Site
-from django.db import models
-from django.utils import simplejson
+import django.conf as conf
 
 DB_MAP = {
     'mysql': 'MySQL',
@@ -33,48 +27,57 @@ DB_MAP = {
     'postgresql_psycopg2': 'PostgreSQL',
     'sqlite3': 'SQLite',
 }
-STORE = plugin.get(DB_MAP[settings.DATABASE_ENGINE], Store)(
-        settings.DATABASE_NAME)
-RT = STORE.open('', create=False)
-DEFAULT_GRAPH_URI = settings.LOCALNS
-STORE_GRAPH = Graph(STORE, 
-        identifier = rdflib.term.URIRef(DEFAULT_GRAPH_URI))
-LOCALNS = rdflib.namespace.Namespace(settings.LOCALNS)
+LOCALNS = ns.Namespace(conf.settings.LOCALNS)
+STORE_GRAPH = rg.ConjunctiveGraph(DB_MAP[conf.settings.DATABASE_ENGINE], 
+        identifier=LOCALNS)
+# TODO: graph configuration for mysql/postgresql
+STORE_GRAPH.open(conf.settings.DATABASE_NAME, create=True)
 
-# TODO: timestamps for triples
+class ResourceManager(object):
+    """Manager for resource objects."""
+
+    def all():
+        return STORE_GRAPH
+
+    def filter(sparql_query):
+        return STORE_GRAPH.query(sparql_query)
+
+    def get(id):
+        subject = LOCALNS[id]
+        statements = STORE_GRAPH.predicate_objects(subject)
+        resource = Resource(id, statements)
+        return resource
+        
 
 class Resource(object):
-    def __init__(self, id=None, statements=None):
-        ''' 
-        statements is a set of triples, each corresponding to a statement
-        about the subject.
-        '''
+    """Model for a resource in the datastore."""
+    objects = ResourceManager()
+
+    def __init__(self, id, statements=None):
         self.id = id
         self.subject = LOCALNS[id]
         self.statements = statements
+        self.graph = self.get_graph()
+
+    def delete(self):
+        pass
+
+    def get_graph(self):
+        graph = rg.Graph()
+        for statement in self.statements:
+            graph.add((self.subject, statement[0], statement[1]))
+        return graph
 
     def get_existing_statements(self):
         return STORE_GRAPH.predicate_objects(self.subject)
 
     def save(self):
-        # find intersection of self.fields and self.existing
-        # remove self.existing not in intersection
-        # add self.fields not in intersection
+        # TODO: copy self.existing to store_graph of old revisions
+        # remove self.existing and add self.statements 
         for statement in self.statements:
-            STORE_GRAPH.add(statement)
+            STORE_GRAPH.add((self.subject, statement[0], statement[1]))
         STORE_GRAPH.commit()
     
-    def delete(self):
-        pass
-
-def get_resource(id):
-    if id:
-        subject = LOCALNS[id]
-        statements = STORE_GRAPH.predicate_objects(subject)
-        resource_graph = Graph()
-        for statement in statements:
-            resource_graph.add((subject, statement[0], statement[1]))
-    else:
-        resource_graph = STORE_GRAPH
-    return resource_graph
+    def serialize(self, format='xml'):
+        return self.graph.serialize(format=format)
 
