@@ -17,20 +17,23 @@
 
 """Ingests documents into the catalog."""
 
+import csv
 import optparse
 import sys
 import urllib
 
-from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
+import django.conf as conf
+import django.core.management.base as mb
 
-from kochief.cataloging import models
+import kochief.cataloging.models as models
 
+CSV_FILE = 'tmp.csv'
 NTRIPLE_FILE = 'tmp.nt'
 RDF_FILE = 'tmp.rdf'
+DISCOVERY_INSTALLED = 'kochief.discovery' in conf.settings.INSTALLED_APPS
 
-class Command(BaseCommand):
-    option_list = BaseCommand.option_list + (
+class Command(mb.BaseCommand):
+    option_list = mb.BaseCommand.option_list + (
         optparse.make_option('-p', '--parser',
             dest='parser',
             metavar='PARSER', 
@@ -57,29 +60,37 @@ class Command(BaseCommand):
                 if file_or_url.endswith('.mrc'):
                     import kochief.cataloging.parsers.marc as parser
                 else:
-                    raise CommandError("Please specify a parser.")
+                    raise mb.CommandError("Please specify a parser.")
             #out_handle = open(RDF_FILE, 'w')
             #count = parser.write_graph(data_handle, out_handle, format='xml')
             count = 0
+            if DISCOVERY_INSTALLED:
+                csv_handle = open(CSV_FILE, 'w')
+                writer = csv.DictWriter(csv_handle, parser.FIELDNAMES)
+                fieldname_dict = {}
+                for fieldname in parser.FIELDNAMES:
+                    fieldname_dict[fieldname] = fieldname
+                writer.writerow(fieldname_dict)
             for record in parser.generate_records(data_handle):
                 count += 1
+                statements = record.get_statements()
+                resource = models.Resource(record.id, statements)
+                resource.save()
+
+                if DISCOVERY_INSTALLED:
+                    row = record.get_row()
+                    writer.writerow(row)
+
                 if count % 1000:
                     sys.stderr.write(".")
                 else:
                     sys.stderr.write(str(count))
-                statements = parser.get_statements(record)
-                resource = models.Resource(record['id'], statements)
-                resource.save()
-
-            #    db_record.save()
-            #    id = db_record.id
-            #    print "Saving record %s" % id
-            #    record['id'] = id
-            #    db_record.version_set.create(
-            #        data=simplejson.dumps(record), 
-            #        message='record %s created by ingest' % id,
-            #        committer=committer,
-            #    )
+            data_handle.close()
             print
             print "%s records saved" % count
+            if DISCOVERY_INSTALLED:
+                csv_handle.close()
+                import kochief.discovery.management.commands.index as i
+                i.load_solr(CSV_FILE)
+                os.remove(CSV_FILE)
 

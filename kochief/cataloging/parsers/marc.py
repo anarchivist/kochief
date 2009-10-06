@@ -280,8 +280,9 @@ def get_languages(language_codes):
 def generate_records(data_handle):
     reader = pymarc.MARCReader(data_handle)
     for marc_record in reader:
-        record = get_record(marc_record)
-        if record:  # skip when get_record returns None
+        record_dict = get_record(marc_record)
+        if record_dict:  # skip when get_record returns None
+            record = Record(record_dict)
             yield record
 
 RDF = rdflib.namespace.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#')
@@ -300,28 +301,36 @@ URI_MAP = {
     'title': DC['title'],
 }
 
-def get_statements(record):
-    statements = []
-    id = LOCALNS[record['id']]
-    format = record['format']
-    if format in ('Book', 'Journal'):
-        statements.append((id, RDF['type'], BIBO[format]))
-    for field in record:
-        value = record[field]
-        if value:
-            mapping = URI_MAP.get(field)
-            if mapping:
-                pred_uri = mapping
-            else:
-                pred_uri = LOCALNS[field]
-            if hasattr(value, '__iter__'):
-                for iter_value in value:
-                    statement = (pred_uri, rdflib.term.Literal(iter_value))
+class Record(object):
+    def __init__(self, record_dict):
+        self.record_dict = record_dict
+        self.id = record_dict['id']
+
+    def get_row(self):
+        return RowDict(self.record_dict)
+        
+    def get_statements(self):
+        statements = []
+        identifier = LOCALNS[self.id]
+        format = self.record_dict['format']
+        if format in ('Book', 'Journal'):
+            statements.append((identifier, RDF['type'], BIBO[format]))
+        for field in self.record_dict:
+            value = self.record_dict[field]
+            if value:
+                mapping = URI_MAP.get(field)
+                if mapping:
+                    pred_uri = mapping
+                else:
+                    pred_uri = LOCALNS[field]
+                if hasattr(value, '__iter__'):
+                    for iter_value in value:
+                        statement = (pred_uri, rdflib.term.Literal(iter_value))
+                        statements.append(statement)
+                else:
+                    statement = (pred_uri, rdflib.term.Literal(value))
                     statements.append(statement)
-            else:
-                statement = (pred_uri, rdflib.term.Literal(value))
-                statements.append(statement)
-    return statements
+        return statements
 
 def get_triples(record):
     triples = []
