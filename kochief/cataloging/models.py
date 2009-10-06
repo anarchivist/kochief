@@ -50,7 +50,7 @@ class ResourceManager(object):
         
 
 class Resource(object):
-    """Model for a resource in the datastore."""
+    """Model for a resource in the catalonging."""
     objects = ResourceManager()
 
     def __init__(self, id, statements=None):

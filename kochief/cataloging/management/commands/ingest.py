@@ -24,7 +24,7 @@ import urllib
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
-from kochief.datastore import models
+from kochief.cataloging import models
 
 NTRIPLE_FILE = 'tmp.nt'
 RDF_FILE = 'tmp.rdf'
@@ -34,7 +34,7 @@ class Command(BaseCommand):
         make_option('-p', '--parser',
             dest='parser',
             metavar='PARSER', 
-            help='Use PARSER (in kochief/datastore/parsers) to parse FILEs for ingesting'),
+            help='Use PARSER (in kochief/cataloging/parsers) to parse FILEs for ingesting'),
     )
     help = 'Ingests documents into the catalog.'
     args = 'file_or_url [file_or_url ...]'
@@ -46,7 +46,7 @@ class Command(BaseCommand):
             if parser_module:
                 if parser_module.endswith('.py'):
                     parser_module = parser_module[:-3]
-                parser = __import__('kochief.datastore.parsers.' + parser_module, globals(), 
+                parser = __import__('kochief.cataloging.parsers.' + parser_module, globals(), 
                         locals(), [parser_module])
         for file_or_url in file_or_urls:
             data_handle = urllib.urlopen(file_or_url)
@@ -55,7 +55,7 @@ class Command(BaseCommand):
             if not parser:
                 # guess parser based on file extension
                 if file_or_url.endswith('.mrc'):
-                    import kochief.datastore.parsers.marc as parser
+                    import kochief.cataloging.parsers.marc as parser
                 else:
                     raise CommandError("Please specify a parser.")
             #out_handle = open(RDF_FILE, 'w')

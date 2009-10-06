@@ -110,7 +110,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     #'kochief.cataloging',
-    'kochief.datastore',
     'kochief.discovery',
 )
 
@@ -243,7 +242,7 @@ SORTS = (
 SEARCH_CACHE_TIME = 6000    # in seconds
 
 
-## Settings for the datastore app ##
+## Settings for the cataloging app ##
 
 # Namespace for local resources.  If relative, site domain will be prepended
 # when triples are serialized.

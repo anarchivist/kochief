@@ -25,7 +25,6 @@ admin.autodiscover()
 urlpatterns = patterns('',
     url(r'', include('kochief.cataloging.urls')),
     url(r'', include('kochief.discovery.urls')),
-    url(r'', include('kochief.datastore.urls')),
     ('^admin/(.*)', admin.site.root),
 )
 

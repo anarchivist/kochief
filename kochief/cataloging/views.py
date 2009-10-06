@@ -19,14 +19,14 @@ import django.http as http
 import django.template.context as tc
 import django.template.loader as tl
 
-import kochief.datastore.models as dm
+import kochief.cataloging.models as dm
 
 def resource_view(request, resource_id, format='html'):
     resource = dm.Resource.objects.get(id=resource_id)
     if format == 'html':
         context = tc.RequestContext(request)
         context['graph'] = resource.serialize(format='n3')
-        template = tl.get_template('datastore/resource.html')
+        template = tl.get_template('cataloging/resource.html')
         return http.HttpResponse(template.render(context))
     elif format == 'dc':
         dc_elements = resource
