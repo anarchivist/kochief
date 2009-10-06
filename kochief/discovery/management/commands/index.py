@@ -21,30 +21,29 @@
 
 """Indexes documents in a Solr instance."""
 
-import os
 import optparse
+import os
 import sys
 import time
 import urllib
-from optparse import make_option
 
 try:
-    from xml.etree import ElementTree as et  # builtin in Python 2.5
+    import xml.etree.ElementTree as et  # builtin as of Python 2.5
 except ImportError:
     import elementtree.ElementTree as et
 
-from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
+import django.conf as conf
+import django.core.management.base as mb
 
 CSV_FILE = 'tmp.csv'
 
-class Command(BaseCommand):
-    option_list = BaseCommand.option_list + (
-        make_option('-n', '--new', 
+class Command(mb.BaseCommand):
+    option_list = mb.BaseCommand.option_list + (
+        optparse.make_option('-n', '--new', 
             action='store_true',
             dest='new',
             help='Create a new index.  If the index already exists, it will be replaced.'),
-        make_option('-p', '--parser',
+        optparse.make_option('-p', '--parser',
             dest='parser',
             metavar='PARSER', 
             help='Use PARSER (in discovery/parsers) to parse files or urls for indexing'),
@@ -71,7 +70,7 @@ class Command(BaseCommand):
                 if file_or_url.endswith('.mrc'):
                     import kochief.discovery.parsers.marc as module
             if not module:
-                raise CommandError("Please specify a parser.")
+                raise mb.CommandError("Please specify a parser.")
             print "Converting %s to CSV ..." % file_or_url
             t1 = time.time()
             data_handle = urllib.urlopen(file_or_url)
@@ -81,7 +80,7 @@ class Command(BaseCommand):
             finally:
                 csv_handle.close()
             t2 = time.time()
-            self._load_solr(CSV_FILE)
+            load_solr(CSV_FILE)
             t3 = time.time()
             os.remove(CSV_FILE)
             p_time = (t2 - t1) / 60
@@ -94,38 +93,39 @@ That's %0.3f minutes total for %d records,
 at a rate of %0.3f records per second.
 """ % (p_time, l_time, t_time, record_count, rate)
 
-    def _get_multi(self):
-        """Inspect solr schema.xml for multivalue fields."""
-        multivalue_fieldnames = []
-        schema = et.parse(settings.SOLR_DIR + 'conf/schema.xml')
-        fields_element = schema.find('fields')
-        field_elements = fields_element.findall('field')
-        for field in field_elements:
-            if field.get('multiValued') == 'true':
-                multivalue_fieldnames.append(field.get('name'))
-        return multivalue_fieldnames
 
-    def _load_solr(self, csv_file):
-        """
-        Load CSV file into Solr.  solr_params are a dictionary of parameters
-        sent to solr on the index request.
-        """
-        file_path = os.path.abspath(csv_file)
-        solr_params = {}
-        for fieldname in self._get_multi():
-            tag_split = "f.%s.split" % fieldname
-            solr_params[tag_split] = 'true'
-            tag_separator = "f.%s.separator" % fieldname
-            solr_params[tag_separator] = '|'
-        solr_params['stream.file'] = file_path
-        solr_params['commit'] = 'true'
-        params = urllib.urlencode(solr_params)
-        update_url = settings.SOLR_URL + 'update/csv?%s'
-        print "Loading records into Solr ..."
-        try: 
-            output = urllib.urlopen(update_url % params)
-        except IOError:
-            raise IOError, 'Unable to connect to the Solr instance.'
-        print "Solr response:\n"
-        print output.read()
+def get_multi():
+    """Inspect solr schema.xml for multivalue fields."""
+    multivalue_fieldnames = []
+    schema = et.parse(conf.settings.SOLR_DIR + 'conf/schema.xml')
+    fields_element = schema.find('fields')
+    field_elements = fields_element.findall('field')
+    for field in field_elements:
+        if field.get('multiValued') == 'true':
+            multivalue_fieldnames.append(field.get('name'))
+    return multivalue_fieldnames
+
+def load_solr(csv_file):
+    """
+    Load CSV file into Solr.  solr_params are a dictionary of parameters
+    sent to solr on the index request.
+    """
+    file_path = os.path.abspath(csv_file)
+    solr_params = {}
+    for fieldname in get_multi():
+        tag_split = "f.%s.split" % fieldname
+        solr_params[tag_split] = 'true'
+        tag_separator = "f.%s.separator" % fieldname
+        solr_params[tag_separator] = '|'
+    solr_params['stream.file'] = file_path
+    solr_params['commit'] = 'true'
+    params = urllib.urlencode(solr_params)
+    update_url = conf.settings.SOLR_URL + 'update/csv?%s'
+    print "Loading records into Solr ..."
+    try: 
+        output = urllib.urlopen(update_url % params)
+    except IOError:
+        raise IOError, 'Unable to connect to the Solr instance.'
+    print "Solr response:\n"
+    print output.read()
 
