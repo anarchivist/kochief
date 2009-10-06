@@ -8,3 +8,5 @@ syntax:glob
 syntax:glob
 *.pyc
 kochief/kochief.db
+kochief/settings_local.py
+solr/data
