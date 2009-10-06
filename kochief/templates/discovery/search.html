@@ -79,7 +79,7 @@
     {% endif %}
     <div id="facets">
       {% if limits %}
-        <h3>{% trans "Current refinements:" %}</h3>
+        <h3>{% trans "Current filters:" %}</h3>
         <div class="remove-facet-list">
           <ul> 
             {% for limit in limits %}
@@ -90,7 +90,7 @@
         <br />
       {% endif %} 
       {% if facets %}
-        <h3>{% trans "Refine your search:" %}</h3>
+        <h3>{% trans "Filter your search:" %}</h3>
         {% for facet in facets %}
           <div class="facet-list" id="facet-list-{{ facet.field }}">
             <strong>{{ facet.name }}</strong>
