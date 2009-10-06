@@ -19,10 +19,10 @@ import django.http as http
 import django.template.context as tc
 import django.template.loader as tl
 
-import kochief.cataloging.models as dm
+import kochief.cataloging.models as models
 
 def resource_view(request, resource_id, format='html'):
-    resource = dm.Resource.objects.get(id=resource_id)
+    resource = models.Resource.objects.get(id=resource_id)
     if format == 'html':
         context = tc.RequestContext(request)
         context['graph'] = resource.serialize(format='n3')

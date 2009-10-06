@@ -36,13 +36,13 @@ STORE_GRAPH.open(conf.settings.DATABASE_NAME, create=True)
 class ResourceManager(object):
     """Manager for resource objects."""
 
-    def all():
+    def all(self):
         return STORE_GRAPH
 
-    def filter(sparql_query):
+    def filter(self, sparql_query):
         return STORE_GRAPH.query(sparql_query)
 
-    def get(id):
+    def get(self, id):
         subject = LOCALNS[id]
         statements = STORE_GRAPH.predicate_objects(subject)
         resource = Resource(id, statements)
