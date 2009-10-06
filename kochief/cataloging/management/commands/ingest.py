@@ -18,7 +18,7 @@
 """Ingests documents into the catalog."""
 
 import optparse
-from optparse import make_option
+import sys
 import urllib
 
 from django.conf import settings
@@ -31,7 +31,7 @@ RDF_FILE = 'tmp.rdf'
 
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
-        make_option('-p', '--parser',
+        optparse.make_option('-p', '--parser',
             dest='parser',
             metavar='PARSER', 
             help='Use PARSER (in kochief/cataloging/parsers) to parse FILEs for ingesting'),
@@ -63,6 +63,10 @@ class Command(BaseCommand):
             count = 0
             for record in parser.generate_records(data_handle):
                 count += 1
+                if count % 1000:
+                    sys.stderr.write(".")
+                else:
+                    sys.stderr.write(str(count))
                 statements = parser.get_statements(record)
                 resource = models.Resource(record['id'], statements)
                 resource.save()
