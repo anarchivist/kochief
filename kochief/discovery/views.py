@@ -88,7 +88,7 @@ def search(request):
     context.update(get_search_results(request))
     context['ILS'] = settings.ILS
     context['MAJAX_URL'] = settings.MAJAX_URL
-    template = loader.get_template('discovery/search.html')
+    template = loader.get_template('discovery/results.html')
     return HttpResponse(template.render(context))
 
 @vary_on_headers('accept-language', 'accept-encoding')
