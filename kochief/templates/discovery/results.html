@@ -159,7 +159,7 @@
                 <div class="author">
                   <span class="metadata">{% trans "Author:" %}</span>
                   {% for author in doc.author %}
-                    <a href="{% new_limit "author" author %}" title="{% trans "Search for" %} {{ author }}">{{ author }}</a>
+                    <a href="{% new_limit "author" author %}" title="{% trans "Filter on" %} {{ author }}">{{ author }}</a>
                   {% endfor %}
                 </div>
               {% endif %}
@@ -167,7 +167,7 @@
                 <div class="names">
                   <span class="metadata">{% trans "Names:" %}</span>
                   {% for name in doc.name %}
-                  <a href="{% new_limit "name" name %}" title="{% trans "Search for" %} {{ name }}">{{ name }}</a>
+                  <a href="{% new_limit "name" name %}" title="{% trans "Filter on" %} {{ name }}">{{ name }}</a>
                   {% endfor %}
                 </div>
               {% endif %}
@@ -175,7 +175,7 @@
                 <div class="subjects">
                   <span class="metadata">{% trans "Subjects:" %}</span>
                   {% for subject in doc.subject %}
-                    <a href="{% new_limit "subject" subject %}" title="{% trans "Search for" %} {{ subject }}">{{ subject }}</a>
+                    <a href="{% new_limit "subject" subject %}" title="{% trans "Filter on" %} {{ subject }}">{{ subject }}</a>
                   {% endfor %}
                 </div>
               {% endif %}
@@ -224,7 +224,7 @@
               {% if doc.format %}
                 <div class="format {{ doc.format }}">
                   <span class="metadata">{% trans "Format:" %}</span>
-                  <a href="{% new_limit "format" doc.format %}" title="{% trans "Search for " %}{{ doc.format }}">
+                  <a href="{% new_limit "format" doc.format %}" title="{% trans "Filter on" %} {{ doc.format }}">
                     <span>{{ doc.format }}</span>
                   </a>
                 </div>
