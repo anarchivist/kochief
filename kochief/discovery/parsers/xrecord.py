@@ -30,19 +30,24 @@ def get_record(record_id, url_template=URL_TEMPLATE):
         subdata_list = field.findall('MARCSUBFLD/SUBFIELDDATA')
         value = ' '.join([x.text for x in subdata_list])
         return value
-    def get_sub_a(field):
-        subfields = field.findall('MARCSUBFLD')
-        for sub in subfields:
-            ind = sub.findtext('SUBFIELDINDICATOR')
-            if ind == 'a':
-                return sub.findtext('SUBFIELDDATA')
+    def get_sub(subfield_indicator):
+        def get_sub_enclosed(field):
+            subfields = field.findall('MARCSUBFLD')
+            for sub in subfields:
+                ind = sub.findtext('SUBFIELDINDICATOR')
+                if ind == subfield_indicator:
+                    return sub.findtext('SUBFIELDDATA')
+        return get_sub_enclosed
 
     tag_map = {
         '090': [('call_number', join_subfields)],
         '245': [('full_title', join_subfields), 
-                ('title', get_sub_a)],
-        '250': [('edition', get_sub_a)],
+                ('title', get_sub('a'))],
+        '250': [('edition', get_sub('a'))],
         '260': [('imprint', join_subfields)],
+        '500': [('note', join_subfields)],
+        '650': [('topic', get_sub('a')),
+                ('genre', get_sub('v'))],
     }
 
     var_fields = tree.findall('VARFLD')
