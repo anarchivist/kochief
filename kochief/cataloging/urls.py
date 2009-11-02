@@ -19,10 +19,10 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('kochief.cataloging.views',
     url(r'^r/(.*)\.rdf$', 'resource_view', {'format': 'xml'}, 
-        name='resource-rdf'),
+        name='resource_rdf'),
     url(r'^r/(.*)\.n3$', 'resource_view', {'format': 'n3'}, 
-        name='resource-n3'),
+        name='resource_n3'),
     url(r'^r/(.*)\.nt$', 'resource_view', {'format': 'nt'}, 
-        name='resource-nt'),
+        name='resource_nt'),
     url(r'^r/(.*)$', 'resource_view', name='resource'),
 )

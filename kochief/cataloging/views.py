@@ -20,23 +20,19 @@ import django.template.context as tc
 import django.template.loader as tl
 
 import kochief.cataloging.models as models
+import kochief.cataloging.lib.mimeparse as mimeparse
 
-def resource_view(request, resource_id, format='html'):
+def resource_view(request, resource_id, format='xml'):
     resource = models.Resource.objects.get(id=resource_id)
-    if format == 'html':
-        context = tc.RequestContext(request)
-        context['graph'] = resource.serialize(format='n3')
-        template = tl.get_template('cataloging/resource.html')
-        return http.HttpResponse(template.render(context))
-    elif format == 'dc':
-        dc_elements = resource
-    elif format == 'xml':
-        return http.HttpResponse(resource.serialize(format='xml'), 
-                mimetype='application/rdf+xml')
-    elif format == 'n3':
-        return http.HttpResponse(resource.serialize(format='n3'), 
-                mimetype='text/n3')
-    elif format == 'nt':
-        return http.HttpResponse(resource.serialize(format='nt'), 
-                mimetype='text/plain')
+    available = ['text/plain']
+    format_map = {
+        'xml': 'application/rdf+xml',
+        'n3': 'text/n3',
+        'nt': 'text/plain',
+    }
+    available.append(format_map[format])
+    accept = request.META.get('HTTP_ACCEPT', 'application/rdf+xml')
+    match = mimeparse.best_match(available, accept)
+    return http.HttpResponse(resource.serialize(format=format), 
+            mimetype=match)
 
