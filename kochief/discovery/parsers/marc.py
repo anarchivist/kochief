@@ -91,7 +91,7 @@ class RowDict(dict):
         if hasattr(value, '__iter__'):
             value = '|'.join([x for x in value if x])
         #return pymarc.marc8.marc8_to_unicode(value).encode('utf8')
-        return value  # assume it's already in utf8 for now
+        return value.encode('utf8')
 
 def normalize(value):
     if value:
@@ -472,8 +472,8 @@ def write_csv(marc_file_handle, csv_file_handle, ils=None):
                     row = get_row(record)
                     writer.writerow(row)
             except:
-                sys.stderr.write("\nError in MARC record #%s (%s):\n" % (count, 
-                        marc_record.title()))
+                sys.stderr.write("\nError in MARC record #%s (%s):\n" % 
+                        (count, marc_record.title().encode('ascii', 'ignore')))
                 raise
             else:
                 if count % 1000:
