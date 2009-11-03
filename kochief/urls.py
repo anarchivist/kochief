@@ -23,9 +23,12 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'', include('kochief.cataloging.urls')),
     url(r'', include('kochief.discovery.urls')),
-    ('^admin/(.*)', admin.site.root),
+    
+    # Uncomment for cataloging.
+    #url(r'', include('kochief.cataloging.urls')),
+
+    #('^admin/(.*)', admin.site.root),
 )
 
 if settings.DEBUG:
