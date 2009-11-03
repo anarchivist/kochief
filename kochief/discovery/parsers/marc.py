@@ -439,7 +439,7 @@ def get_row(record):
     row = RowDict(record)
     return row
 
-def write_csv(marc_file_handle, csv_file_handle, ils=None):
+def write_csv(marc_file_handle, csv_file_handle, ils=settings.ILS):
     """
     Convert a MARC dump file to a CSV file.
     """
