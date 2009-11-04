@@ -76,6 +76,13 @@ def new_limit(context, field, field_query):
 register.inclusion_tag('discovery/snippets/search_url.html', 
         takes_context=True)(new_limit)
 
+def new_limit_raw(context, limit):
+    params = []
+    params.append(('limits', limit.encode('utf8')))
+    return {'urlparams': urllib.urlencode(params)}
+register.inclusion_tag('discovery/snippets/search_url.html', 
+        takes_context=True)(new_limit_raw)
+
 def add_limit(context, field, field_query):
     params = []
     query = context['query']
