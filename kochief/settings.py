@@ -159,20 +159,15 @@ INDEX_FACET_TERMS = 20
 # usually alphabetical.
 INDEX_FACETS = [
     { 
-        'name': ugettext('Names'), 
+        'name': ugettext('Popular Names'), 
         'field': 'personal_name', 
         'sort_by_count': True, 
     }, 
     { 
-        'name': ugettext('Subjects'), 
+        'name': ugettext('Popular Subjects'), 
         'field': 'subject', 
         'sort_by_count': True, 
     },    
-    { 
-        'name': ugettext('Languages'), 
-        'field': 'language', 
-        'sort_by_count': True, 
-    },                            
 ]
 
 # Facet display in the results sidebar.

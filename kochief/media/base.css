@@ -168,11 +168,11 @@ table.formset {
 }
 #index-facets div {
   float: left;
-  width: 29%;
   text-align: left;
   border: 1px solid #ddd;
-  margin: 0 1% 10px 1%;
-  padding: 10px 1% 10px 1%;
+  margin: 10px 0 10px 2%;
+  padding: 5px 0 5px 1%;
+  width: 46%;
   overflow: auto;
 }
 #index-facets h3 {
