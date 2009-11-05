@@ -29,7 +29,7 @@
   <div id="index-facets">
     {% for facet in facets %}
     <div>
-      <h3>Popular {{ facet.name }}</h3>
+      <h3>{{ facet.name }}</h3>
       <ul>
         {% for term, count in facet.terms %}
           <li><a href="{% new_limit facet.field term %}">{{ term }}</a> ({{ count }})</li>
