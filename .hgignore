@@ -2,4 +2,4 @@ syntax:glob
 *.pyc
 kochief/kochief.db
 kochief/settings_local.py
-solr/data
+kochief/solr/data
