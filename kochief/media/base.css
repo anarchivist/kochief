@@ -158,6 +158,9 @@ table.formset {
 #facets h3 {  
   margin: 0 0 3px 0;
 }
+#header {
+  padding: 10px;
+}
 #id_query {
   width: 50%;
 }
