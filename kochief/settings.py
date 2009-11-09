@@ -159,12 +159,12 @@ INDEX_FACET_TERMS = 20
 # usually alphabetical.
 INDEX_FACETS = [
     { 
-        'name': ugettext('Popular Names'), 
+        'name': ugettext('Names'), 
         'field': 'personal_name', 
         'sort_by_count': True, 
     }, 
     { 
-        'name': ugettext('Popular Subjects'), 
+        'name': ugettext('Subjects'), 
         'field': 'subject', 
         'sort_by_count': True, 
     },    
