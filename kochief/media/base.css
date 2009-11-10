@@ -34,7 +34,7 @@ ul {
  */
 .beta {
   color: #d1d1d1; 
-  vertical-align: super; 
+  vertical-align: sub; 
   font-size: 0.7em;
 }
 .cover { 
