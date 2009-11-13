@@ -59,13 +59,13 @@
               <h3>{% trans "Were you looking for:" %}</h3>
               <ul>
                 {% for term, count in facet.terms %}
-                  <li><a href="{% new_limit facet.field term %}">{{ term }}</a> ({{ count }})</li>
+                  <li><a href="{% new_limit facet.field term %}">{{ term }}</a></li>
                 {% endfor %}
               </ul>
               {% if facet.has_more %}
                 <ul class="hidden" id="extended-suggested">
                   {% for term, count in facet.extended_terms %}
-                    <li><a href="{% new_limit facet.field term %}">{{ term }}</a> ({{ count }})</li>
+                    <li><a href="{% new_limit facet.field term %}">{{ term }}</a></li>
                   {% endfor %}
                 </ul>
               {% endif %}
