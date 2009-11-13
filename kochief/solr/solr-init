@@ -1,6 +1,17 @@
 #!/bin/sh -e
-
-# Starts, stops, and restarts solr
+#
+# Starts, stops, and restarts Solr
+#
+### BEGIN INIT INFO
+# Provides:          solr
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Should-Start:
+# Should-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Starts, stops, and restarts the Solr search engine
+### END INIT INFO
 
 SOLR_DIR="/usr/local/src/solr/example"
 JAVA_OPTIONS="-Xmx512m -DSTOP.PORT=8079 -DSTOP.KEY=stopkey -Dsolr.solr.home=multicore -jar start.jar"
