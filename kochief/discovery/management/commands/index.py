@@ -1,8 +1,8 @@
 #! /usr/bin/python
 # -*- coding: utf8 -*-
 
-# Copyright 2009 Gabriel Sean Farrell
-# Copyright 2008 Mark A. Matienzo
+# Copyright 2009-2010 Gabriel Sean Farrell
+# Copyright 2008-2010 Mark A. Matienzo
 #
 # This file is part of Kochief.
 # 
@@ -118,6 +118,7 @@ def load_solr(csv_file):
         tag_separator = "f.%s.separator" % fieldname
         solr_params[tag_separator] = '|'
     solr_params['stream.file'] = file_path
+    solr_params['stream.contentType'] = 'text/plain;charset=utf-8'
     solr_params['commit'] = 'true'
     params = urllib.urlencode(solr_params)
     update_url = conf.settings.SOLR_URL + 'update/csv?%s'
