@@ -3,3 +3,4 @@ syntax:glob
 kochief/kochief.db
 kochief/settings_local.py
 kochief/solr/data
+kochief/tmp.csv
